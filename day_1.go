@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"slices"
 	"strconv"
@@ -55,8 +54,6 @@ func answerDayOne(leftList []int, rightList []int) int {
 		distance = int(math.Abs(float64(distance)))
 		// distances = append(distances, distance)
 		sum += distance
-
-		fmt.Println("Distance: ", distance, "Sum: ", sum)
 
 	}
 
