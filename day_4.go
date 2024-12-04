@@ -2,16 +2,9 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"slices"
 	"strings"
 )
-
-type GridValue struct {
-	value  string
-	rIndex int
-	cIndex int
-}
 
 func parserDayFour(inputConent string) ([][]string, error) {
 	lines := strings.Split(inputConent, "\n")
@@ -25,170 +18,103 @@ func parserDayFour(inputConent string) ([][]string, error) {
 	return mainArray, nil
 }
 
-func checkXmasStringIsValid(inputChar string, xmasArray []string) bool {
-	xmas := []string{"X", "M", "A", "S"}
-
-	if !slices.Contains(xmas, inputChar) {
-		return false
-	}
-
-	if len(xmasArray) == 0 {
-		return false
-	}
-
-	inputCharIndex := slices.Index(xmas, inputChar)
-
-	// if xmasArrayLength == 1 {
-	// 	if inputCharIndex == 0 {
-	// 		return true
-	// 	}
-	// 	return false
-	// }
-
-	for _, xChar := range xmasArray {
-		xCharIndex := slices.Index(xmas, xChar)
-
-		if xCharIndex == -1 {
-			return false
-		}
-
-		if (inputCharIndex - 1) == xCharIndex {
-			return true
-		}
-
-		if (inputCharIndex + 1) == xCharIndex {
-			return true
-		}
-	}
-
-	return true
+type Coordinates struct {
+	x int
+	y int
 }
 
-func getXmasMapping(inputChar string, xmasArray []GridValue) (GridValue, error) {
-	xmas := []string{"X", "M", "A", "S"}
+func starSearchCount(wordSearch [][]string, word string, startPoint Coordinates) (int, error) {
 
-	if !slices.Contains(xmas, inputChar) {
-		return GridValue{}, errors.New("Invalid input character")
+	// Get limits
+	searchLen := len(word)
+	rowLen := len(wordSearch)
+	colLen := len(wordSearch[0])
+
+	comboOptions := []Coordinates{
+		{x: 1, y: 0},
+		{x: 0, y: 1},
+		{x: 1, y: 1},
+		{x: -1, y: 0},
+		{x: 0, y: -1},
+		{x: -1, y: -1},
+		{x: 1, y: -1},
+		{x: -1, y: 1},
 	}
 
-	if len(xmasArray) == 0 {
-		return GridValue{}, errors.New("Invalid xmas array")
+	// Check if the word can fit in the grid
+	if (startPoint.x+searchLen) > rowLen && (startPoint.x-searchLen) < 0 {
+		return 0, errors.New("Word cannot fit in the X grid")
 	}
 
-	inputCharIndex := slices.Index(xmas, inputChar)
+	if (startPoint.y+searchLen) > colLen && (startPoint.y-searchLen) < 0 {
+		return 0, errors.New("Word cannot fit in the Y grid")
+	}
 
-	for xmasArrayIndex, xChar := range xmasArray {
-		xCharIndex := slices.Index(xmas, xChar)
+	searchCount := 0
+	for _, comboValue := range comboOptions {
 
-		if xCharIndex == -1 {
-			return "", -1
+		xEnd := startPoint.x + comboValue.x
+		yEnd := startPoint.y + comboValue.y
+
+		searchCoords := []Coordinates{}
+		for i := 0; i < searchLen; i++ {
+			if comboValue.x > 0 {
+				xEnd = startPoint.x + i
+			}
+			if comboValue.y > 0 {
+				yEnd = startPoint.y + i
+			}
+			if comboValue.x < 0 {
+				xEnd = startPoint.x - i
+			}
+			if comboValue.y < 0 {
+				yEnd = startPoint.y - i
+			}
+
+			if xEnd >= rowLen || xEnd < 0 {
+				continue
+			}
+			if yEnd >= colLen || yEnd < 0 {
+				continue
+			}
+
+			tempCoords := Coordinates{x: xEnd, y: yEnd}
+			searchCoords = append(searchCoords, tempCoords)
+		}
+		words := []string{}
+		for _, searchCoord := range searchCoords {
+			words = append(words, wordSearch[searchCoord.x][searchCoord.y])
 		}
 
-		if (inputCharIndex + 1) == xCharIndex {
-			return xChar, xmasArrayIndex
+		if strings.Join(words, "") == word {
+			searchCount++
 		}
 
-		if (inputCharIndex - 1) == xCharIndex {
-			return xChar, xmasArrayIndex
+		slices.Reverse(words)
+		if strings.Join(words, "") == word {
+			searchCount++
 		}
+
 	}
 
-	return "", -1
-}
-
-func getGridAdjescentValues(grid [][]string, rIndex int, cIndex int) []GridValue {
-	// get the values of the grid
-	// get the values that are adjescent to the current value
-	// return the values
-	// grid[rIndex][cIndex]
-	// grid[rIndex][cIndex+1]
-	// grid[rIndex][cIndex-1]
-	// grid[rIndex+1][cIndex]
-	// grid[rIndex-1][cIndex]
-	// grid[rIndex+1][cIndex+1]
-	// grid[rIndex+1][cIndex-1]
-	// grid[rIndex-1][cIndex+1]
-	// grid[rIndex-1][cIndex-1]
-
-	// get the values of the grid
-	gridValues := []string{}
-	for _, row := range grid {
-		for _, value := range row {
-			gridValues = append(gridValues, value)
-		}
-	}
-
-	// get the values that are adjescent to the current value
-	adjescentValues := []GridValue{}
-	if cIndex < len(grid[rIndex])-1 {
-		foundValue := GridValue{value: grid[rIndex][cIndex+1], rIndex: rIndex, cIndex: cIndex + 1}
-		adjescentValues = append(adjescentValues, foundValue)
-	}
-	if cIndex > 0 {
-		foundValue := GridValue{value: grid[rIndex][cIndex-1], rIndex: rIndex, cIndex: cIndex - 1}
-		adjescentValues = append(adjescentValues, foundValue)
-	}
-	if rIndex < len(grid)-1 {
-		foundValue := GridValue{value: grid[rIndex+1][cIndex], rIndex: rIndex + 1, cIndex: cIndex}
-		adjescentValues = append(adjescentValues, foundValue)
-	}
-	if rIndex > 0 {
-		foundValue := GridValue{value: grid[rIndex-1][cIndex], rIndex: rIndex - 1, cIndex: cIndex}
-		adjescentValues = append(adjescentValues, foundValue)
-	}
-	if rIndex < len(grid)-1 && cIndex < len(grid[rIndex])-1 {
-		foundValue := GridValue{value: grid[rIndex+1][cIndex+1], rIndex: rIndex + 1, cIndex: cIndex + 1}
-		adjescentValues = append(adjescentValues, foundValue)
-	}
-	if rIndex < len(grid)-1 && cIndex > 0 {
-		foundValue := GridValue{value: grid[rIndex+1][cIndex-1], rIndex: rIndex + 1, cIndex: cIndex - 1}
-		adjescentValues = append(adjescentValues, foundValue)
-	}
-	if rIndex > 0 && cIndex < len(grid[rIndex])-1 {
-		foundValue := GridValue{value: grid[rIndex-1][cIndex+1], rIndex: rIndex - 1, cIndex: cIndex + 1}
-		adjescentValues = append(adjescentValues, foundValue)
-	}
-	if rIndex > 0 && cIndex > 0 {
-		foundValue := GridValue{value: grid[rIndex-1][cIndex-1], rIndex: rIndex - 1, cIndex: cIndex - 1}
-		adjescentValues = append(adjescentValues, foundValue)
-	}
-
-	// return the values
-	return adjescentValues
-
+	return searchCount, nil
 }
 
 func answerDayFour(wordSearch [][]string) int {
 
-	filteredWordSearch := [][]string{}
+	count := 0
 	for rIndex, row := range wordSearch {
-		filteredRow := []string{}
 		for cIndex, value := range row {
-
-			placeHolder := "."
-			adjescentValues := getGridAdjescentValues(wordSearch, rIndex, cIndex)
-
-			listValues := []string{}
-			for _, adjescentValue := range adjescentValues {
-				fmt.Println(adjescentValue)
-
-				listValues = append(listValues, adjescentValue.value)
+			if value == "X" {
+				starCount, error := starSearchCount(wordSearch, "XMAS", Coordinates{x: rIndex, y: cIndex})
+				if error != nil {
+					continue
+				}
+				count += starCount
 			}
-			matchedValue, adjescentIndex := getXmasMapping(value, listValues)
-			fmt.Println(matchedValue, adjescentIndex)
-
-			if matchedValue == "" {
-				filteredRow = append(filteredRow, value)
-				continue
-			}
-
-			filteredRow = append(filteredRow, placeHolder)
-
 		}
-		filteredWordSearch = append(filteredWordSearch, filteredRow)
 	}
 
-	fmt.Println(filteredWordSearch)
-	return 0
+	return count
 
 }
