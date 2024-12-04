@@ -47,7 +47,7 @@ func solutionDayOne() {
 	fmt.Println("Day1, P1 Answer: ", answer)
 
 	answerP2 := answerDayOneP2(leftArray, rightArray)
-	fmt.Println("Day 1, P2 Answer: ", answerP2)
+	fmt.Println("Day1, P2 Answer: ", answerP2)
 
 }
 
@@ -98,10 +98,30 @@ func solutionDayThree() {
 
 }
 
+func solutionDayFour() {
+	problemTxt, err := readProblemTxt("./puzzle_sets/day_4.txt")
+	if err != nil {
+		fmt.Println("Error reading file: ", err)
+		return
+	}
+
+	matrix, err := parserDayFour(problemTxt)
+	if err != nil {
+		fmt.Println("Error parsing file: ", err)
+		return
+	}
+
+	answer := answerDayFour(matrix)
+	fmt.Println("Day4, P1 Answer: ", answer)
+
+}
+
 func main() {
 	solutionDayOne()
 	fmt.Println()
 	solutionDayTwo()
 	fmt.Println()
 	solutionDayThree()
+	fmt.Println()
+	solutionDayFour()
 }
