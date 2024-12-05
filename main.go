@@ -114,6 +114,10 @@ func solutionDayFour() {
 	answer := answerDayFour(matrix)
 	fmt.Println("Day4, P1 Answer: ", answer)
 
+	// answerP2 := answerDayFourP2(matrix)
+	answerP2 := foundSolutionOnlineDay4P2(matrix)
+	fmt.Println("Day4, P2 Answer: ", answerP2)
+
 }
 
 func main() {
